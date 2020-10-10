@@ -1,7 +1,11 @@
 const express = require("express");
+const bodyParse = require("body-parser");
 
 let router = express.Router();
 
+
+router.use(bodyParse.json());
+router.use(bodyParse.urlencoded({extended: false}));
 router.get('/list', (req, res, next) => {
     if (!req.query.id) {
         res.send({
@@ -47,5 +51,23 @@ router.get('/list', (req, res, next) => {
         ])
     }
 });
+
+router.post('/update', ((req, res, next) => {
+    if (!req.body.id) {
+        res.send({
+            msg: "参数为空！"
+        })
+    }
+    if (1 === req.body.id) {
+        res.send({
+            success: '第一页'
+        })
+    }
+    if (2 === req.body.id) {
+        res.send({
+            success: '第二页'
+        })
+    }
+}));
 
 module.exports = router;

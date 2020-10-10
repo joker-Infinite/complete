@@ -16,15 +16,35 @@
                 res: []
             }
         },
-        methods: {},
-        mounted() {
+        methods: {
+            getData(v) {
+                let id = {
+                    'id': v
+                };
+                this.axios.post("/api/store/update", id).then(res => {
+                    console.log(res.data)
+                });
+            }
+        },
+        mounted: async function () {
+            const [res, data] = await Promise.all([this.axios.get("/api/store/list", {params: {id: 1}}), this.axios.get("/api/user/getName")]);
+            console.log(res);
+            console.log(data);
             this.axios.get('/api/store/list', {
                 params: {
                     id: 1
                 }
             }).then(res => {
                 this.res = res.data;
-            })
+            });
+
+            // this.axios.get("/api/store/222").then(res => {
+            //     console.log(res);
+            // });
+            this.getData(1);
+            setTimeout(_ => {
+                this.getData(2)
+            }, 5000)
         }
     }
 </script>

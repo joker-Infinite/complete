@@ -24,11 +24,14 @@ export default (app, http) => {
 
 const express = require('express');
 const mongoose = require("mongoose");
-let db = mongoose.connect('mongodb://localhost:27017');
+const bodyParse = require("body-parser");
+// let db = mongoose.connect('mongodb://localhost:27017');
 let app = express();
 
 app.use('/user', require('./user'));
 app.use('/store', require('./store'));
+app.use(bodyParse.json());
+app.use(bodyParse.urlencoded({extended: false}));
 
 /*db.connection.on("error",function(error){
     console.log("数据库连接失败："+error);
@@ -44,7 +47,9 @@ db.connection.on("open",function(error){
         name: '张三',
     })
 });*/
-
+app.use((req, res) => {
+    throw '未找到对应接口!'
+});
 app.listen(3000, () => {
     console.log('服务启动成功！');
 });
