@@ -1,55 +1,59 @@
-/*import express from 'express';
-import socketIO from "socket.io";
-export default (app, http) => {
-    app.use(express.json());
-
-    app.get('/foo', (req, res) => {
-      res.json({msg: 'foo'});
-    });
-
-    app.post('/bar', (req, res) => {
-      res.json(req.body);
-    });
-
-    // optional support for socket.io
-
-    let io = socketIO(http);
-    io.on("connection", client => {
-      client.on("message", function(data) {
-        // do something
-      });
-      client.emit("message", "Welcome");
-    });
-}*/
-
-const express = require('express');
-const mongoose = require("mongoose");
+const express = require("express");
+const dbPool = require("./common").dbPool;
 const bodyParse = require("body-parser");
-// let db = mongoose.connect('mongodb://localhost:27017');
+const router = express.Router();
 let app = express();
 
-app.use('/user', require('./user'));
-app.use('/store', require('./store'));
+app.use("/user", require("./user"));
+app.use("/store", require("./store"));
 app.use(bodyParse.json());
-app.use(bodyParse.urlencoded({extended: false}));
+app.use(bodyParse.urlencoded({ extended: false }));
 
-/*db.connection.on("error",function(error){
-    console.log("数据库连接失败："+error);
+/*查询用户列表*/
+/*router.get('/userList', function (req, res, next) {
+    dbPool.getConnection(function (err, conn) {
+        if (err) {
+            res.send(err);
+        } else {
+            conn.query("select name from userdetails", function (err, result) {
+                res.json(result);
+                conn.release();
+            })
+        }
+    })
 });
 
-db.connection.on("open",function(error){
-    console.log("++++++数据库连成功++++++");
-});*/
-
-
-/*app.get('/userApi/getName', (req, res) => {
-    res.send({
-        name: '张三',
+/!*添加用户*!/
+router.get('/userAdd', function (req, res, next) {
+    res.render('userAdd')
+});
+router.post('/userAdd', function (req, res, next) {
+    let name = req.body.name;
+    let age = req.body.age;
+    let sex = req.body.sex;
+    let remark = req.body.remark;
+    dbPool.query("insert into userdetails(name,age,sex,remark) values('" + name + "','" + age + "','" + sex + "','" + remark + "',)", function (err, rows) {
+        if (err) {
+            res.send('新增失败' + err);
+        } else {
+            res.redirect("/users");
+        }
+    })
+});
+/!*删除用户*!/
+router.get("/del/:id", function (req, res) {
+    let id = req.params.id;
+    dbPool.query("delete from userdetails where id=" + id, function (err, rows) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.redirect("/users");
+        }
     })
 });*/
 app.use((req, res) => {
-    throw '未找到对应接口!'
+  throw "未找到对应接口!";
 });
 app.listen(3000, () => {
-    console.log('服务启动成功！');
+  console.log("服务启动成功！");
 });

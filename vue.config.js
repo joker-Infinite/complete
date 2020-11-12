@@ -9,7 +9,7 @@ module.exports = {
     port: 8888, // 端口号配置
     proxy: {
       "/api": {
-        target: "http://192.168.0.98:3000",
+        target: "http://localhost:3000/",
         changeOrigin: true,
         pathRewrite: {
           "^/api": ""
@@ -17,5 +17,5 @@ module.exports = {
       }
     }
   },
-  lintOnSave: false,
+  lintOnSave: false
 };

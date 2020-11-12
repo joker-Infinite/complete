@@ -1,99 +1,149 @@
 <template>
-    <div class="container">
-        <div class="ECharts_box" v-for="i in res">
-            <div class="title">{{i.title}}</div>
-            <div class="title_sub">{{i.subtitle}}</div>
-            <img :title="i.imgTitle" :src="i.img" class="img"/>
-        </div>
+  <div class="container">
+    <div class="btnBar">
+      <el-button @click="btnClick(1)" type="primary">新增</el-button>
+      <el-button @click="btnClick(2)" type="info">修改</el-button>
+      <el-button @click="btnClick(3)" type="danger">删除</el-button>
     </div>
+    <div class="table">
+      <el-table
+        ref="elTable"
+        :data="tableData"
+        width="100%"
+        style="height: 100%"
+        border
+        highlight-current-row
+        @selection-change="selectionChange"
+        @current-change="selectionChange"
+      >
+        <!--<el-table-column
+                        type="selection"
+                        align="center"
+                        width="55">
+                </el-table-column>-->
+        <el-table-column label="序号" align="center" type="index" width="50">
+        </el-table-column>
+        <el-table-column
+          align="center"
+          v-for="(item, index) in columns"
+          :label="item.label"
+          :prop="item.code"
+          v-if="!item.hidden"
+        ></el-table-column>
+      </el-table>
+    </div>
+    <user-add ref="userAdd" @refresh="refresh"></user-add>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "Home",
-        data() {
-            return {
-                res: []
-            }
-        },
-        methods: {
-            getData(v) {
-                let id = {
-                    'id': v
-                };
-                this.axios.post("/api/store/update", id).then(res => {
-                    console.log(res.data)
-                });
-            }
-        },
-        mounted: async function () {
-            const [res, data] = await Promise.all([this.axios.get("/api/store/list", {params: {id: 1}}), this.axios.get("/api/user/getName")]);
-            console.log(res);
-            console.log(data);
-            this.axios.get('/api/store/list', {
-                params: {
-                    id: 1
-                }
-            }).then(res => {
-                this.res = res.data;
-            });
+import UserAdd from "./userAdd";
 
-            // this.axios.get("/api/store/222").then(res => {
-            //     console.log(res);
-            // });
-            this.getData(1);
-            setTimeout(_ => {
-                this.getData(2)
-            }, 5000)
-        }
+export default {
+  name: "Home",
+  components: { UserAdd },
+  data() {
+    return {
+      columns: [
+        { code: "id", label: "主键Id", hidden: true },
+        { code: "name", label: "姓名" },
+        { code: "age", label: "年龄" },
+        { code: "sex", label: "性别" },
+        { code: "remark", label: "描述" },
+        { code: "createTime", label: "创建时间" },
+        { code: "updateTime", label: "修改时间" }
+      ],
+      tableData: [],
+      selectData: []
+    };
+  },
+  methods: {
+    selectionChange(data) {
+      this.selectData = data;
+    },
+    btnClick(n) {
+      if (n === 1) {
+        this.userAdd();
+      }
+      if (n === 2) {
+        this.userRevise();
+      }
+      if (n === 3) {
+        this.userDelete();
+      }
+    },
+    //新增
+    userAdd() {
+      this.$refs["userAdd"].openDialog();
+    },
+    //修改
+    userRevise() {},
+    //删除
+    userDelete() {
+      this.axios
+        .get("/api/user/del", {
+          params: {
+            id: this.selectData.id
+          }
+        })
+        .then(res => {
+          this.$message({
+            message: "删除成功！",
+            type: "success"
+          });
+          this.refresh();
+        })
+        .catch(e => {
+          this.$message({
+            message: "删除失败！",
+            type: "success"
+          });
+        });
+    },
+    refresh() {
+      this.tableData = [];
+      this.$axios.get("/api/user/userList").then(res => {
+        this.tableData = res.data;
+      });
     }
+  },
+  mounted() {},
+  created() {
+    this.refresh();
+    /* this.axios.post('/api/user/userAdd', data).then(res => {
+                         console.log(res);
+                     });*/
+    /*this.axios.get('/api/user/del', {
+                        params: {
+                            id: 1
+                        }
+                    }).then(res => {
+
+                    })*/
+  }
+};
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100%;
-        position: fixed;
-        background: #333;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        overflow-y: scroll;
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 80%;
+  height: 950px;
+  background: #fff;
+  align-items: stretch;
 
-        .ECharts_box {
-            width: 30%;
-            height: 500px;
-            background: #FFF;
-            margin-bottom: 50px;
-            overflow: hidden;
-            position: relative;
+  .btnBar {
+    width: 95%;
+    text-align: left;
+    margin: 10px 2.5%;
+  }
 
-            .title {
-                position: absolute;
-                width: 100%;
-                height: 50px;
-                text-align: center;
-                line-height: 50px;
-                font-size: 30px;
-                font-weight: 700;
-                top: 0;
-                left: 0;
-                font-family: "Microsoft YaHei UI";
-            }
-
-            .title_sub {
-                width: 100%;
-                position: absolute;
-                top: 50px;
-                font-size: 20px;
-                text-align: center;
-            }
-
-            .img {
-                width: 100%;
-                height: 100%;
-            }
-        }
-    }
+  .table {
+    width: 95%;
+    height: 95%;
+    margin: 0 2.5%;
+  }
+}
 </style>
