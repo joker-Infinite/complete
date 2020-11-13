@@ -16,6 +16,7 @@ router.get("/userList", function(req, res, next) {
         // conn.release();
       });
     }
+    dbPool.releaseConnection(conn);
   });
 });
 
