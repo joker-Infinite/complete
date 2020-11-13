@@ -96,6 +96,10 @@ router.post("/update", function(req, res, next) {
   dbPool.query(sql, function(err, rows) {
     if (err) {
       res.send(err);
+    } else {
+      res.json({
+        msg: "成功！"
+      });
     }
   });
 });
